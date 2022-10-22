@@ -1,6 +1,6 @@
 images:
 - name: jacobalberty/unifi
-  newTag: v7.1.65
+  newTag: v7.2.94 
 
 namespace: unifi 
 
