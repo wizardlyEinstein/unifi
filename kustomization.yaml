@@ -1,0 +1,9 @@
+images:
+- name: jacobalberty/unifi
+  newTag: v7.1.65
+
+namespace: unifi 
+
+resources:
+- unifi.yaml 
+

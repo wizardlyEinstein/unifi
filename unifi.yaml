@@ -1,0 +1,79 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: unifi 
+  labels:
+    app.kubernetes.io/name: unifi 
+spec:
+  ports:
+    - port: 8080 
+      targetPort: 8080 
+      protocol: TCP 
+      name: ctrl 
+    - port: 8443
+      targetPort: 8443
+      protocol: TCP 
+      name: https 
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: unifi 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: unifi-udp
+  labels:
+    app.kubernetes.io/name: unifi 
+spec:
+  ports:
+    - port: 3478 
+      targetPort: 3478 
+      protocol: UDP
+      name: stun 
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: unifi 
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unifi 
+  labels:
+    app.kubernetes.io/name: unifi 
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: unifi 
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: unifi 
+    spec:
+      containers:
+        - name: unifi 
+          image: jacobalberty/unifi 
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: https
+              containerPort: 8443 
+              protocol: TCP
+            - name: ctrl 
+              containerPort: 8080 
+              protocol: TCP
+            - name: stun 
+              containerPort: 3478 
+              protocol: UDP 
+          volumeMounts:
+            - name: data
+              mountPath: /unifi/
+      volumes:
+        - name: data
+          hostPath:
+           path: /storage/k3s/unifi 
+           type: DirectoryOrCreate
+
