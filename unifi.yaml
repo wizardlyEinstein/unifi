@@ -63,6 +63,9 @@ spec:
         - name: unifi 
           image: jacobalberty/unifi 
           imagePullPolicy: IfNotPresent
+          env:
+            - name: UNIFI_STDOUT 
+              value: "true" 
           ports:
             - name: https
               containerPort: 8443 
