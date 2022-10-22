@@ -56,6 +56,9 @@ spec:
       labels:
         app.kubernetes.io/name: unifi 
     spec:
+      securityContext:
+        runAsUser: 999 
+        runAsGroup: 999 
       containers:
         - name: unifi 
           image: jacobalberty/unifi 
