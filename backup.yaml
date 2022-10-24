@@ -1,0 +1,53 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: unifi-backup
+spec:
+  schedule: "0 12 * * *"
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          securityContext:
+            runAsUser: 1000 
+            runAsGroup: 1000 
+          initContainers:
+            - name: encrypt 
+              image: mozilla/sops:v3.7.3-alpine 
+              volumeMounts:
+                - name: data
+                  mountPath: /unifi
+                - name: backup 
+                  mountPath: /backup
+              command: ["/bin/sh", "-c"]
+              args: 
+                - sops --verbose --encrypt --age age1yzj8tdyqfz0c484jdfzs82g862d6e935txu2wz4w58ycsvcwqvxq2crzld $(ls -Art /unifi/data/backup/autobackup/*.unf | tail -n 1)  > /backup/autobackup.unf.enc
+          containers:
+            - name: push 
+              image: google/cloud-sdk:405.0.0-alpine 
+              volumeMounts:
+                - name: backup 
+                  mountPath: /backup
+                - mountPath: /.secrets/gcp/gcpServiceUser.json
+                  name: gcpserviceuser
+                  subPath: gcpServiceUser.json
+              command: ["/bin/sh", "-c"]
+              args:
+                - gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS};
+                  gsutil -h Content-Type:application/octet-stream cp -v /backup/autobackup.unf.enc gs://32424361-154a-4ebd-843d-6763887ccfc4/autobackup.unf.enc;
+              env:
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: /.secrets/gcp/gcpServiceUser.json
+          restartPolicy: Never
+          volumes:
+            - name: backup 
+              emptyDir: {}
+            - name: gcpserviceuser
+              secret:
+                secretName: gcpserviceuser.json
+            - name: data
+              hostPath:
+                path: /storage/k3s/unifi
+                type: DirectoryOrCreate
+

@@ -6,4 +6,7 @@ namespace: unifi
 
 resources:
 - unifi.yaml 
+- backup.yaml
 
+generators:
+- gcpServiceUser.yaml
