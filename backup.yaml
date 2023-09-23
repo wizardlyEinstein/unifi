@@ -48,6 +48,6 @@ spec:
                 secretName: gcpserviceuser.json
             - name: data
               hostPath:
-                path: /storage/k3s/unifi
-                type: DirectoryOrCreate
+                path: /ssd/k3s/unifi
+                type: Directory
 
