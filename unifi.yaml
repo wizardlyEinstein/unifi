@@ -82,6 +82,6 @@ spec:
       volumes:
         - name: data
           hostPath:
-           path: /ssd/k3s/unifi 
+           path: /hdd/k3s/unifi 
            type: Directory
 
